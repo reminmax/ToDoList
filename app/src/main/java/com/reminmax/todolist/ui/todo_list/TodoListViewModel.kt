@@ -31,7 +31,6 @@ class TodoListViewModel @Inject constructor(
                 sendUiEvent(UiEvent.Navigate(Routes.ADD_EDIT_TODO))
             }
             is TodoListEvent.OnUndoDeleteClick -> {
-                //  восстановление ранее удаленного элемента списка
                 deletedTodoItem?.let { todoItem ->
                     viewModelScope.launch {
                         repository.insertTodoItem(todoItem)
@@ -40,10 +39,8 @@ class TodoListViewModel @Inject constructor(
             }
             is TodoListEvent.OnDeleteTodoClick -> {
                 viewModelScope.launch {
-                    // перед удалением сохраняем ссылку на элемент, чтобы потом его можно было восстановить
                     deletedTodoItem = event.todo
                     repository.deleteTodoItem(event.todo)
-                    // вывод сообщения на экран
                     sendUiEvent(UiEvent.ShowSnackBar(
                         message = "Todo item deleted",
                         action = "undo"
@@ -51,8 +48,6 @@ class TodoListViewModel @Inject constructor(
                 }
             }
             is TodoListEvent.OnDoneChange -> {
-                // для изменения isDone применяется вставка
-                // в соотв с тек. настройками, при вставке элемента с таким же id он будет перезаписан
                 viewModelScope.launch {
                     repository.insertTodoItem(
                         event.todoItem.copy(
