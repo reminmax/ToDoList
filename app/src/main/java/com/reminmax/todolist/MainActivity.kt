@@ -10,14 +10,53 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.reminmax.todolist.ui.add_edit_todo.AddEditTodoScreen
 import com.reminmax.todolist.ui.theme.ToDoListTheme
+import com.reminmax.todolist.ui.todo_list.TodoListScreen
+import com.reminmax.todolist.util.Routes
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ToDoListTheme {
 
+                var navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = Routes.TODO_LIST
+                ) {
+
+                    composable(Routes.TODO_LIST) {
+                        TodoListScreen(
+                            onNavigate = {
+                                navController.navigate(it.route)
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Routes.ADD_EDIT_TODO + "?todoItemId={todoItemId}",
+                        arguments = listOf(
+                            navArgument(name = "todoItemId") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            }
+                        )
+                    )
+                    {
+                        AddEditTodoScreen(onPopBackStack = {
+                            navController.popBackStack()
+                        })
+                    }
+                }
             }
         }
     }
